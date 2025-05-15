@@ -1,0 +1,34 @@
+1. Simulating Language Evolution with Neural Networks
+
+	Research NN trained on compressing colors to names.
+
+	Train a neural network to compress sensory inputs (e.g., colors) into discrete labels under Information Bottleneck (IB) constraints.
+
+	Research Question: Do the learned categories resemble real human language categories?
+
+	Explore the structure of the resulting network representations and compare them to human data.
+
+2. Extending Information Bottleneck to Other Semantic Domains
+
+	Trying other domains rather than colors.
+
+	Apply IB modeling to new domains like emotions, object categories, or actions.
+
+	Research Question: Can IB explain category formation beyond colors?
+
+3. Information Bottleneck and Cross-Linguistic Variability
+
+	Compare languages compressing score to each color and all colors - explaining the differences, geographical difference, language age, number of speakers etc.
+
+	Analyze how IB explains differences between languages (e.g., English vs. Amazonian languages).
+
+	Research Question: Does the IB principle account for both universal patterns and cultural variation?
+
+
+
+To Do List:
+
+1. Understanding IB - Information Bottleneck method.
+2. Reading related paper: Berlin B, Kay P (1969) Basic Color Terms: Their Universality and Evolution (Univ of California Press, Berkeley).
+3. Finding similar paper to chosen research questions.
+4. Getting data resources for the research questions.	
