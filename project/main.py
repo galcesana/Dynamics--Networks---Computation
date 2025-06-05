@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from discrete_ib import DiscreteIB  # Ensure discrete_ib.py is in the same folder
+import matplotlib.pyplot as plt
 
 def main():
     # 1. Load data
@@ -36,13 +37,15 @@ def main():
 
     # 6. Compute p_empirical(w | m)
     p_emp = counts.astype(float) / np.maximum(total_languages.reshape(-1, 1), 1)
+    # print("p_emp shape:", p_emp.shape)
+    # print("p_emp (first 10 rows):\n", p_emp[:10])
 
     # 7. Uniform prior over chips
     p_m = np.ones(N) / N
 
     # 8. Set IB hyperparameters: number of clusters (K) and beta
-    K_target = 10     # desired number of clusters
-    beta_value = 10.0  # trade-off parameter
+    K_target = 100     # desired number of clusters
+    beta_value = 1.0  # trade-off parameter
 
     print(f"Running IB with K_target = {K_target}, beta = {beta_value}")
 
@@ -91,5 +94,41 @@ def main():
     print(f"Mixed-color-naming CSV saved to: {output_csv}")
     print(chips.head(10))
 
+    # Return all needed variables
+    return df, chips, counts, total_languages, vocab, W
+
+def evaluate_ib_grid(df, chips, counts, total_languages, vocab, W):
+    N = len(chips)
+    V = len(vocab)
+    p_emp = counts.astype(float) / np.maximum(total_languages.reshape(-1, 1), 1)
+    p_m = np.ones(N) / N
+
+    betas = [0.1, 0.5, 1, 2, 5, 10]
+    K_targets = [5, 10, 20, 50, 100, 200]
+    results = np.zeros((len(betas), len(K_targets)))
+
+    for i, beta_value in enumerate(betas):
+        for j, K_target in enumerate(K_targets):
+            ib = DiscreteIB(p_m=p_m, p_w_given_m=p_emp, n_clusters=K_target, beta=beta_value)
+            ib.q_k_given_m = np.random.dirichlet(np.ones(K_target), size=N)
+            ib.train(max_iters=200, tol=1e-6, verbose=False)
+            cluster_of_chip = np.argmax(ib.q_k_given_m, axis=1)
+            non_empty = len(np.unique(cluster_of_chip))
+            results[i, j] = non_empty
+
+    plt.figure(figsize=(8, 6))
+    plt.imshow(results, aspect='auto', origin='lower', 
+               extent=[min(K_targets), max(K_targets), min(betas), max(betas)],
+               cmap='viridis')
+    plt.colorbar(label='Non-empty clusters')
+    plt.xlabel('Number of clusters (K_target)')
+    plt.ylabel('Beta')
+    plt.title('Effect of Beta and K_target on Non-empty Clusters')
+    plt.yticks(betas)
+    plt.xticks(K_targets)
+    plt.show()
+
+# Usage example (add at the end of your main.py):
 if __name__ == "__main__":
-    main()
+    df, chips, counts, total_languages, vocab, W = main()
+    evaluate_ib_grid(df, chips, counts, total_languages, vocab, W)
